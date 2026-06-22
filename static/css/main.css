@@ -1,0 +1,30 @@
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.todo-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #edf2f7;
+}
+
+.ai-advice {
+    background-color: #f0fdfa;
+    border-right: 4px solid #00a884;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    color: #1a202c;
+    line-height: 1.6;
+}
+
+.status-badge {
+    font-size: 0.85em;
+    padding: 4px 10px;
+    border-radius: 20px;
+}

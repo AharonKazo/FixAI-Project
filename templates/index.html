@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Todo app with AI</title>
+{% endblock %}
+
+{% block body %}
+<div class="container"> <h1 style="text-align: center; margin-bottom: 30px;">My AI Todo List</h1>
+
+    <div class="box" style="text-align: center; margin-bottom: 40px;">
+        <form action="/add" method="post" enctype="multipart/form-data">
+            <div class="input-wrapper" style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 25px; padding: 5px 15px; background: #f9f9f9;">
+                <input type="text" id="task-input" name="title" placeholder="כתוב משימה או הדבק תמונה..." style="border: none; background: transparent; flex-grow: 1; outline: none; padding: 10px;">
+                
+                <label for="file-upload" class="upload-icon" style="cursor: pointer; margin: 0 10px;">📷</label>
+                <input type="file" id="file-upload" name="file" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
+                
+                <div id="preview-container" style="display:none; margin-left: 10px; align-items: center;">
+                    <img id="image-preview" src="" style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">
+                    <button type="button" onclick="clearImage()" style="background: none; border: none; cursor: pointer; color: red; margin-right: 5px;">✖</button>
+                </div>
+
+                <button type="submit" style="background: #00a884; color: white; border: none; border-radius: 20px; padding: 8px 15px; cursor: pointer; font-weight: bold;">הוסף</button>
+            </div>
+        </form>
+    </div>
+
+    {% for todo in list_todo %}
+        <div class="todo-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 1.2em;"># {{ todo.title }}</strong>
+                {% if todo.complete %}
+                    <span class="status-badge" style="background: #d1fae5; color: #065f46; padding: 5px 10px; border-radius: 15px;">בוצע ✅</span>
+                {% else %}
+                    <span class="status-badge" style="background: #fee2e2; color: #991b1b; padding: 5px 10px; border-radius: 15px;">בתהליך ⏳</span>
+                {% endif %}
+            </div>
+
+            {% if todo.advice %}
+                <div class="ai-advice" style="background-color: #f0fdfa; border-right: 4px solid #00a884; padding: 15px; margin-top: 15px; border-radius: 8px;">
+                    <span style="font-weight: bold; color: #00a884; display: block; margin-bottom: 5px;">💡 עצה מ-FixAI:</span>
+                    {{ todo.advice }}
+                </div>
+            {% endif %}
+
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <a href="/update/{{ todo.id }}" style="text-decoration: none; color: #4a5568; margin-left: 15px;">🔄 בצע/בטל</a>
+                <a href="/delete/{{ todo.id }}" style="text-decoration: none; color: #e53e3e;">🗑️ מחק משימה</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+
+function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('image-preview').src = e.target.result;
+            document.getElementById('preview-container').style.display = 'flex';
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+
+function clearImage() {
+    document.getElementById('file-upload').value = "";
+    document.getElementById('preview-container').style.display = 'none';
+}
+
+
+document.getElementById('task-input').addEventListener('paste', function(e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            const blob = item.getAsFile();
+            const fileInput = document.getElementById('file-upload');
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(blob);
+            fileInput.files = dataTransfer.files;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('image-preview').src = event.target.result;
+                document.getElementById('preview-container').style.display = 'flex';
+            };
+            reader.readAsDataURL(blob);
+        }
+    }
+});
+</script>
+{% endblock %}

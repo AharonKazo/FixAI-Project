@@ -1,0 +1,46 @@
+name: Deploy to EC2
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: SSH and Deploy
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 60s
+          command_timeout: 30m
+          script: |
+            cd ~/FixAI
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
+            echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
+            echo "MYSQL_USER=${{ secrets.DB_USER }}" >> .env
+            echo "MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "GEMINI_KEY=${{ secrets.GEMINI_KEY }}" >> .env
+            docker compose down
+            docker system prune -af
+            docker builder prune -af
+            docker compose pull
+            docker compose up -d --build
+            echo "=== Waiting 30s for containers to start ==="
+            sleep 30
+            echo "=== Container Status ==="
+            docker compose ps
+            echo "=== Container Logs (errors only) ==="
+            docker compose logs --tail=15
