@@ -4,6 +4,8 @@ services:
     restart: always
     expose:
      - "5000"
+    volumes:
+      - .:/app
 
     environment:
       DB_HOST: mysql
