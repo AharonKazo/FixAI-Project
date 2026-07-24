@@ -6,9 +6,9 @@ import time
 from typing import Optional
 from PIL import Image 
 from  prometheus_flask_exporter import PrometheusMetrics
+from app_helpers import resolve_advice_text
 
-load_dotenv() 
-API_KEY = os.getenv("GEMINI_KEY")
+load_dotenv()
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
 
@@ -67,36 +67,8 @@ def add():
     if not title and (not file or file.filename == ''):
         return redirect(url_for("index"))
 
-    advice_text = "המערכת עמוסה, נסה שוב בעוד דקה."
-    if not API_KEY:
-        advice_text = "שגיאה: מפתח ה-API של ג'מיני אינו מוגדר. לא ניתן לקבל הערכת מחיר."
-    
-    if genai is not None and API_KEY:
-        client = genai.Client(api_key=API_KEY)
-        
-       
-        model_name = "gemini-flash-lite-latest" 
-        
-        prompt = f"תן לי הערכת מחיר קצרה מאוד (עד 3 משפטים) לפי השוק הישראלי לתיקון: {title if title else 'המתואר בתמונה'}."
-        contents = [prompt]
-
-        if file and file.filename != '':
-            try:
-                img = Image.open(file.stream)
-                contents.append(img)
-            except Exception as e:
-                print(f"Error opening image: {e}")
-
-        try:
-            response = client.models.generate_content(
-                model=model_name,
-                contents=contents
-            )
-            advice_text = getattr(response, "text", advice_text) or advice_text
-        except Exception as e:
-            print(f"AI Error: {e}")
-            if "429" in str(e):
-                advice_text = "חרגת מהמכסה לדקה זו. המתן 60 שניות."
+    api_key = os.getenv("GEMINI_KEY") or os.getenv("GEMINI_API_KEY")
+    advice_text = resolve_advice_text(title, api_key, genai, file=file)
 
     new_todo = Todo(title=title if title else "משימת תמונה", complete=False, advice=advice_text)
     db.session.add(new_todo)
