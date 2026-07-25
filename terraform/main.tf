@@ -4,7 +4,7 @@ provider "aws" {
 
 resource "aws_instance" "web" {
   ami           = "ami-0c7217cdde317cfec"
-  instance_type = "t3.micro"
+  instance_type = "t3.small"
   user_data= file("../setup-ec2.sh")
   vpc_security_group_ids = [aws_security_group.TF_SG.id]
   key_name = "final-key"

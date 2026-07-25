@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 {% block head %}
-<title>מה מתקנים היום</title>
+<title>Todo app with AI</title>
 {% endblock %}
 
 {% block body %}
-<div class="container"> <h1 style="text-align: center; margin-bottom: 30px;">My AI Todo List</h1>
+<div class="container"> <h1 style="text-align: center; margin-bottom: 30px;">FixAI</h1>
 
     <div class="box" style="text-align: center; margin-bottom: 40px;">
         <form action="/add" method="post" enctype="multipart/form-data">
-            <div class="input-wrapper" style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 25px; padding: 5px 15px; background: #f9f9f9;">
-                <input type="text" id="task-input" name="title" placeholder="כתוב משימה או הדבק תמונה..." style="border: none; background: transparent; flex-grow: 1; outline: none; padding: 10px;">
+            <div class="input-wrapper" style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 25px; padding: 5px 15px; background: #f9f9f9; direction: rtl;">
+                <input type="text" id="task-input" name="title" placeholder="כתוב משימה או הדבק תמונה ..." style="border: none; background: transparent; flex-grow: 1; outline: none; padding: 10px;">
                 
                 <label for="file-upload" class="upload-icon" style="cursor: pointer; margin: 0 10px;">📷</label>
                 <input type="file" id="file-upload" name="file" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
                 
-                <div id="preview-container" style="display:none; margin-left: 10px; align-items: center;">
+                <div id="preview-container" style="display:none; margin-right: 10px; align-items: center;">
                     <img id="image-preview" src="" style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">
                     <button type="button" onclick="clearImage()" style="background: none; border: none; cursor: pointer; color: red; margin-right: 5px;">✖</button>
                 </div>
